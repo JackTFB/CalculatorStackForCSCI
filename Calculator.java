@@ -29,11 +29,11 @@ public class Calculator {
 
             // Output to postfix output file
             calc.output(calc.postfixOutput, String.format("Input String: \"%s\"", args[i]));
-            calc.output(calc.postfixOutput, String.format("Postfix Form: %s", postfix.toString()));
+            calc.output(calc.postfixOutput, String.format("Postfix Form: \"%s\"", Calculator.toString(postfix)));
 
             // Output to evaluation output file
             calc.output(calc.evalOutput, String.format("Input String: \"%s\"", args[i]));
-            calc.output(calc.evalOutput, String.format("Postfix Form: %s", postfix.toString()));
+            calc.output(calc.evalOutput, String.format("Postfix Form: \"%s\"", Calculator.toString(postfix)));
             calc.output(calc.evalOutput, String.format("Answer: %d", eval));
         }
     }
@@ -41,8 +41,8 @@ public class Calculator {
     // Constructor
     public Calculator() {
         try {
-            postfixOutput = new PrintWriter(new FileOutputStream(new File(POSTFIX_OUTPUT_PATH)));
-            evalOutput = new PrintWriter(new FileOutputStream(new File(EVALUATION_OUTPUT_PATH)));
+            this.postfixOutput = new PrintWriter(new FileOutputStream(new File(POSTFIX_OUTPUT_PATH)), true);
+            this.evalOutput = new PrintWriter(new FileOutputStream(new File(EVALUATION_OUTPUT_PATH)), true);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             System.out.println("\nUnable to create files for output. Please grant the necessary permissions.\nContinuing with output only being printed to console.");
@@ -83,6 +83,15 @@ public class Calculator {
         }
 
         return tokenArray;
+    }
+
+    // Returns a String. Converts a String array to a printable String.
+    private static String toString(String[] array) {
+        String output = "";
+        for (int i = 0; i < array.length; i++) {
+            output = output + array[i];
+        }
+        return output;
     }
 
     // Method for printing output to files and console
