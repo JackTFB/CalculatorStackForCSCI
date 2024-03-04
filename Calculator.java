@@ -44,7 +44,7 @@ public class Calculator {
         Scanner in = new Scanner(System.in);
         System.out.println("Please enter a mathematical expression, or enter 'exit' to close the program:");
         String line = in.nextLine();
-        while (!line.toLowerCase().equals("exit")) {
+        while (!line.toLowerCase().contains("exit")) {
             // Convert from infix to postfix
             String[] postfix = Calculator.infixToPostfix(Calculator.tokenize(line));
 
