@@ -16,14 +16,14 @@ public class Calculator {
     private PrintWriter postfixOutput;
     private PrintWriter evalOutput;
 
-    // Expects String arguments to be provided as mathematical equations in infix form. Converts
+    // Expects String arguments to be provided as mathematical expressions in infix form. Converts
     // from infix to postfix form and evaluates the expression. Output will be printed to the
     // console and to files specified with constants POSTFIX_OUTPUT_PATH and EVALUATION_OUTPUT_PATH.
     public static void main(String[] args) {
         Calculator calc = new Calculator();
 
         // Loop through args
-        // Each argument provided is expected to be a mathematical equation in infix form
+        // Each argument provided is expected to be a mathematical expression in infix form
         for (int i = 0; i < args.length; i++) {
             // Convert from infix to postfix
             String[] postfix = Calculator.infixToPostfix(Calculator.tokenize(args[i]));
@@ -55,7 +55,7 @@ public class Calculator {
         }
     }
 
-    // Returns a double. Mathematically evaluates a postfix equation.
+    // Returns a double. Mathematically evaluates a postfix expression.
     public static double evaluatePostfix(String[] postfix) {
 
         // TO DO
@@ -65,62 +65,70 @@ public class Calculator {
 
     // Returns a String array. Converts input String array in infix form to postfix.
     public static String[] infixToPostfix(String[] infix) {
-        LinkedList<String> postfixList = new LinkedList<String>();
-        Stack<String> stack = new Stack<String>();
+        try {
+            LinkedList<String> postfixList = new LinkedList<String>();
+            Stack<String> stack = new Stack<String>();
 
-        for (int i = 0; i < infix.length; i++) {
-            // Check if current input is a number
-            if (Pattern.matches("[\\d]+[.]?[\\d]*", infix[i])) {
-                postfixList.add(infix[i]);
-            }
-            else {
-                switch (infix[i]) {
-                    case "(":
-                        stack.push(infix[i]);
-                        break;
-                    case "+": case "-":
-                        // While stack is not empty and top of stack is not "("
-                        while (stack.size() > 0 && !stack.peek().equals("(")) {
-                            postfixList.add(stack.pop());
-                        }
-                        stack.push(infix[i]);
-                        break;
-                    case "*": case "/":
-                        // While stack is not empty and top of stack is not "(", "+", or "-"
-                        // "+" and "-" have lower precedence than "*" and "/"
-                        while (stack.size() > 0 && !stack.peek().equals("(") && !stack.peek().equals("+") && !stack.peek().equals("-")) {
-                            postfixList.add(stack.pop());
-                        }
-                        stack.push(infix[i]);
-                        break;
-                    case ")":
-                         // While stack is not empty and top of stack is not "("
-                         while (stack.size() > 0 && !stack.peek().equals("(")) {
-                            postfixList.add(stack.pop());
-                        }
-                        // Discard "("
-                        if (stack.size() > 0) {
-                            stack.pop();
-                        }
-                        break;
-                    default:
-                        // TO DO: THROW CUSTOM EXCEPTION HERE
-                        break;
+            for (int i = 0; i < infix.length; i++) {
+                // Check if current input is a number
+                if (Pattern.matches("[\\d]+[.]?[\\d]*", infix[i])) {
+                    postfixList.add(infix[i]);
+                }
+                else {
+                    switch (infix[i]) {
+                        case "(":
+                            stack.push(infix[i]);
+                            break;
+                        case "+": case "-":
+                            // While stack is not empty and top of stack is not "("
+                            while (stack.size() > 0 && !stack.peek().equals("(")) {
+                                postfixList.add(stack.pop());
+                            }
+                            stack.push(infix[i]);
+                            break;
+                        case "*": case "/":
+                            // While stack is not empty and top of stack is not "(", "+", or "-"
+                            // "+" and "-" have lower precedence than "*" and "/"
+                            while (stack.size() > 0 && !stack.peek().equals("(") && !stack.peek().equals("+") && !stack.peek().equals("-")) {
+                                postfixList.add(stack.pop());
+                            }
+                            stack.push(infix[i]);
+                            break;
+                        case ")":
+                            // While stack is not empty and top of stack is not "("
+                            while (stack.size() > 0 && !stack.peek().equals("(")) {
+                                postfixList.add(stack.pop());
+                            }
+                            // Discard "("
+                            if (stack.size() > 0) {
+                                stack.pop();
+                            }
+                            break;
+                        // The expression is invalid, so throw an excpetion
+                        default:
+                            throw new InvalidExpressionException("The mathematical expression provided is invalid.");
+                    }
                 }
             }
-        }
-        // Pop anything left on stack and add to postfixList
-        while (stack.size() > 0) {
-            postfixList.add(stack.pop());
-        }
+            // Pop anything left on stack and add to postfixList
+            while (stack.size() > 0) {
+                postfixList.add(stack.pop());
+            }
 
-        // Convert postfixList to a String array
-        String[] postfixArray = new String[postfixList.size()];
-        for (int i = 0; i < postfixArray.length; i++) {
-            postfixArray[i] = postfixList.pop();
-        }
+            // Convert postfixList to a String array
+            String[] postfixArray = new String[postfixList.size()];
+            for (int i = 0; i < postfixArray.length; i++) {
+                postfixArray[i] = postfixList.pop();
+            }
 
-        return postfixArray;
+            return postfixArray;
+
+        // Handle InvalidExpressionException
+        } catch (InvalidExpressionException e) {
+            e.printStackTrace();
+            System.out.println(e.getMessage());
+            return new String[1];
+        }
     }
 
     // Returns a String array. Utilized to tokenize a raw input String, breaking it up into String
@@ -166,5 +174,13 @@ public class Calculator {
         System.out.println(str);
     }
 
-    // TO DO: IMPLEMENT CUSTOM EXCEPTION
+    // Custom exception for invalid expressions
+    public static class InvalidExpressionException extends Exception {
+        public InvalidExpressionException(String eMsg, Throwable e) {
+            super(eMsg, e);
+        }
+        public InvalidExpressionException(String eMsg) {
+            super(eMsg);
+        }
+    }
 }
