@@ -17,6 +17,9 @@ public class Calculator {
     private PrintWriter postfixOutput;
     private PrintWriter evalOutput;
 
+    // Expects String arguments to be provided as mathematical equations in infix form. Converts
+    // from infix to postfix form and evaluates the expression. Output will be printed to the
+    // console and to files specified with constants POSTFIX_OUTPUT_PATH and EVALUATION_OUTPUT_PATH.
     // Expects String command-line arguments to be provided as mathematical expressions in infix
     // form. Will also listen for additional String expressions to be provided via the console.
     // Converts from infix to postfix form and evaluates the expression. Output will be printed to
@@ -33,6 +36,15 @@ public class Calculator {
 
             // Evaluate postfix
             double eval = evaluatePostfix(postfix);
+
+            // Output to postfix output file
+            calc.output(calc.postfixOutput, String.format("Input String: \"%s\"", args[i]));
+            calc.output(calc.postfixOutput, String.format("Postfix Form: %s", Calculator.toString(postfix)));
+
+            // Output to evaluation output file
+            calc.output(calc.evalOutput, String.format("Input String: \"%s\"", args[i]));
+            calc.output(calc.evalOutput, String.format("Postfix Form: %s", Calculator.toString(postfix)));
+            calc.output(calc.evalOutput, String.format("Answer: %.3f", eval));
 
             // Output
             calc.output(new PrintWriter[]{calc.postfixOutput, calc.evalOutput}, String.format("Input String: \"%s\"", args[i]));
@@ -75,13 +87,71 @@ public class Calculator {
             evalOutput = null;
         }
     }
-
-    // Returns a double. Mathematically evaluates a postfix expression.
+    // Returns a double. Mathematically evaluates a postfix equation.
     public static double evaluatePostfix(String[] postfix) {
 
         // TO DO
+        Stack<String> stack = new Stack<String>();
 
-        return 0.0;
+
+        double evaluation = 0.0;
+
+        double tempValue = 0.0;
+        double[] tempDoubleArr = new double[2];
+
+        for (int i = 0; i < postfix.length; i++)
+        {
+            //Check if current input is a number
+            if (Pattern.matches("[\\d]+[.]?[\\d]*", postfix[i])){
+                stack.push(postfix[i]);
+            }
+            else {
+                switch (postfix[i]) {
+                    case "+":
+                        if (stack.size() > 0) {
+                            tempDoubleArr[0] = Double.parseDouble(stack.pop());
+                            tempDoubleArr[1] = Double.parseDouble(stack.pop());
+                            tempValue = tempDoubleArr[1] + tempDoubleArr[0];
+                            evaluation = tempValue;
+                            stack.push(Double.toString(tempValue));
+                        }
+                        break;
+                        
+                    case "-":
+                        if (stack.size() > 0) {
+                            tempDoubleArr[0] = Double.parseDouble(stack.pop());
+                            tempDoubleArr[1] = Double.parseDouble(stack.pop());
+                            tempValue = tempDoubleArr[1] - tempDoubleArr[0];
+                            evaluation = tempValue;
+                            stack.push(Double.toString(tempValue));
+                        }
+                        break;
+                    case "*":
+                        if (stack.size() > 0) {
+                            tempDoubleArr[0] = Double.parseDouble(stack.pop());
+                            tempDoubleArr[1] = Double.parseDouble(stack.pop());
+                            tempValue = tempDoubleArr[1] * tempDoubleArr[0];
+                            evaluation = tempValue;
+                            stack.push(Double.toString(tempValue));
+                        }
+                        break;
+                    case "/":
+                        if (stack.size() > 0) {
+                            tempDoubleArr[0] = Double.parseDouble(stack.pop());
+                            tempDoubleArr[1] = Double.parseDouble(stack.pop());
+                            tempValue = tempDoubleArr[1] / tempDoubleArr[0];
+                            evaluation = tempValue;
+                            stack.push(Double.toString(tempValue));
+                        }
+                        break;
+                    default:
+                        break;
+                    
+                }
+            }
+        }
+
+        return evaluation;
     }
 
     // Returns a String array. Converts input String array in infix form to postfix.
@@ -180,6 +250,10 @@ public class Calculator {
     // Returns a String. Converts a String array to a printable String seperated by spaces.
     private static String toString(String[] array) {
         String output = "";
+        for (int i = 0; i < array.length - 1; i++) {
+            output = output + array[i] + " ";
+        }
+        output = output + array[array.length - 1];
         if (array.length > 0) {
             for (int i = 0; i < array.length - 1; i++) {
                 output = output + array[i] + " ";
@@ -190,6 +264,11 @@ public class Calculator {
     }
 
     // Method for printing output to files and console.
+    private void output(PrintWriter writer, String str) {
+        if (writer != null) {
+            writer.println(str);
+        }
+    }
     private void output(PrintWriter[] writers, String str) {
         for (int i = 0; i < writers.length; i++) {
             if (writers[i] != null) {
@@ -199,6 +278,7 @@ public class Calculator {
         System.out.println(str);
     }
 
+    // TO DO: IMPLEMENT CUSTOM EXCEPTION
     // Custom exception for invalid expressions
     public static class InvalidExpressionException extends Exception {
         public InvalidExpressionException(String eMsg, Throwable e) {
