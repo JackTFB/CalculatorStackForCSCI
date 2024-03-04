@@ -3,6 +3,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.PrintWriter;
 import java.util.LinkedList;
+import java.util.Scanner;
 import java.util.Stack;
 import java.util.StringTokenizer;
 import java.util.regex.Pattern;
@@ -16,9 +17,11 @@ public class Calculator {
     private PrintWriter postfixOutput;
     private PrintWriter evalOutput;
 
-    // Expects String arguments to be provided as mathematical expressions in infix form. Converts
-    // from infix to postfix form and evaluates the expression. Output will be printed to the
-    // console and to files specified with constants POSTFIX_OUTPUT_PATH and EVALUATION_OUTPUT_PATH.
+    // Expects String command-line arguments to be provided as mathematical expressions in infix
+    // form. Will also listen for additional String expressions to be provided via the console.
+    // Converts from infix to postfix form and evaluates the expression. Output will be printed to
+    // the console and to files specified with constants POSTFIX_OUTPUT_PATH and
+    // EVALUATION_OUTPUT_PATH.
     public static void main(String[] args) {
         Calculator calc = new Calculator();
 
@@ -31,15 +34,33 @@ public class Calculator {
             // Evaluate postfix
             double eval = evaluatePostfix(postfix);
 
-            // Output to postfix output file
-            calc.output(calc.postfixOutput, String.format("Input String: \"%s\"", args[i]));
-            calc.output(calc.postfixOutput, String.format("Postfix Form: %s", Calculator.toString(postfix)));
-
-            // Output to evaluation output file
-            calc.output(calc.evalOutput, String.format("Input String: \"%s\"", args[i]));
-            calc.output(calc.evalOutput, String.format("Postfix Form: %s", Calculator.toString(postfix)));
-            calc.output(calc.evalOutput, String.format("Answer: %.3f", eval));
+            // Output
+            calc.output(new PrintWriter[]{calc.postfixOutput, calc.evalOutput}, String.format("Input String: \"%s\"", args[i]));
+            calc.output(new PrintWriter[]{calc.postfixOutput, calc.evalOutput}, String.format("Postfix Form: %s", Calculator.toString(postfix)));
+            calc.output(new PrintWriter[]{calc.evalOutput}, String.format("Answer: %.3f", eval));
         }
+
+        // Accept user input from the console. While the user does not enter 'exit', program will continue.
+        Scanner in = new Scanner(System.in);
+        System.out.println("Please enter a mathematical expression, or enter 'exit' to close the program:");
+        String line = in.nextLine();
+        while (!line.toLowerCase().equals("exit")) {
+            // Convert from infix to postfix
+            String[] postfix = Calculator.infixToPostfix(Calculator.tokenize(line));
+
+            // Evaluate postfix
+            double eval = evaluatePostfix(postfix);
+
+            // Output
+            calc.output(new PrintWriter[]{calc.postfixOutput, calc.evalOutput}, String.format("Input String: \"%s\"", line));
+            calc.output(new PrintWriter[]{calc.postfixOutput, calc.evalOutput}, String.format("Postfix Form: %s", Calculator.toString(postfix)));
+            calc.output(new PrintWriter[]{calc.evalOutput}, String.format("Answer: %.3f", eval));
+
+            // Next line
+            System.out.println("\nPlease enter a mathematical expression, or enter 'exit' to close the program:");
+            line = in.nextLine();
+        }
+        in.close();
     }
 
     // Constructor
@@ -49,7 +70,7 @@ public class Calculator {
             this.evalOutput = new PrintWriter(new FileOutputStream(new File(EVALUATION_OUTPUT_PATH)), true);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
-            System.out.println("\nUnable to create files for output. Please grant the necessary permissions.\nContinuing with output only being printed to console.");
+            System.err.println("\nUnable to create files for output. Please grant the necessary permissions.\nContinuing with output only being printed to console.");
             postfixOutput = null;
             evalOutput = null;
         }
@@ -126,7 +147,7 @@ public class Calculator {
         // Handle InvalidExpressionException
         } catch (InvalidExpressionException e) {
             e.printStackTrace();
-            System.out.println(e.getMessage());
+            System.err.println(e.getMessage());
             return new String[1];
         }
     }
@@ -159,17 +180,21 @@ public class Calculator {
     // Returns a String. Converts a String array to a printable String seperated by spaces.
     private static String toString(String[] array) {
         String output = "";
-        for (int i = 0; i < array.length - 1; i++) {
-            output = output + array[i] + " ";
+        if (array.length > 0) {
+            for (int i = 0; i < array.length - 1; i++) {
+                output = output + array[i] + " ";
+            }
+            output = output + array[array.length - 1];
         }
-        output = output + array[array.length - 1];
         return output;
     }
 
     // Method for printing output to files and console.
-    private void output(PrintWriter writer, String str) {
-        if (writer != null) {
-            writer.println(str);
+    private void output(PrintWriter[] writers, String str) {
+        for (int i = 0; i < writers.length; i++) {
+            if (writers[i] != null) {
+                writers[i].println(str);
+            }
         }
         System.out.println(str);
     }
