@@ -61,6 +61,7 @@ public class Calculator {
         // TO DO
         Stack<String> stack = new Stack<String>();
 
+
         double evaluation = 0.0;
 
         double tempValue = 0.0;
@@ -121,9 +122,6 @@ public class Calculator {
         return evaluation;
 
     }
-
-        
-    
 
     // Returns a String array. Converts input String array in infix form to postfix.
     public static String[] infixToPostfix(String[] infix) {
