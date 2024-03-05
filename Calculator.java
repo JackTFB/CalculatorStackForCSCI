@@ -29,7 +29,7 @@ public class Calculator {
         // Each argument provided is expected to be a mathematical expression in infix form
         for (int i = 0; i < args.length; i++) {
             // Convert from infix to postfix
-            String[] postfix = Calculator.infixToPostfix(Calculator.tokenize(args[i]));
+            String[] postfix = Calculator.infixToPostfix(args[i]);
 
             // Evaluate postfix
             double eval = evaluatePostfix(postfix);
@@ -46,7 +46,7 @@ public class Calculator {
         String line = in.nextLine();
         while (!line.toLowerCase().contains("exit")) {
             // Convert from infix to postfix
-            String[] postfix = Calculator.infixToPostfix(Calculator.tokenize(line));
+            String[] postfix = Calculator.infixToPostfix(line);
 
             // Evaluate postfix
             double eval = evaluatePostfix(postfix);
@@ -135,9 +135,10 @@ public class Calculator {
         return evaluation;
     }
 
-    // Returns a String array. Converts input String array in infix form to postfix.
-    public static String[] infixToPostfix(String[] infix) {
+    // Returns a String array. Converts input String in infix form to postfix.
+    public static String[] infixToPostfix(String infixString) {
         try {
+            String[] infix = tokenize(infixString);
             LinkedList<String> postfixList = new LinkedList<String>();
             Stack<String> stack = new Stack<String>();
 
