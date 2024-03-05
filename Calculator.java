@@ -89,57 +89,61 @@ public class Calculator {
         double evaluation = 0.0;
         double tempValue = 0.0;
         double[] tempDoubleArr = new double[2];
+        try {
+            for (int i = 0; i < postfix.length; i++) {
+                //Check if current input is a number
+                if (Pattern.matches("[-]?[\\d]+[.]?[\\d]*", postfix[i])) {
+                    stack.push(postfix[i]);
+                } else {
+                    switch (postfix[i]) {
+                        case "+":
+                            if (stack.size() > 1) {
+                                tempDoubleArr[0] = Double.parseDouble(stack.pop());
+                                tempDoubleArr[1] = Double.parseDouble(stack.pop());
+                                tempValue = tempDoubleArr[1] + tempDoubleArr[0];
+                                evaluation = tempValue;
+                                stack.push(Double.toString(tempValue));
+                            }
+                            break;
+                        case "-":
+                            if (stack.size() > 1) {
+                                tempDoubleArr[0] = Double.parseDouble(stack.pop());
+                                tempDoubleArr[1] = Double.parseDouble(stack.pop());
+                                tempValue = tempDoubleArr[1] - tempDoubleArr[0];
+                                evaluation = tempValue;
+                                stack.push(Double.toString(tempValue));
+                            }
+                            break;
+                        case "*":
+                            if (stack.size() > 1) {
+                                tempDoubleArr[0] = Double.parseDouble(stack.pop());
+                                tempDoubleArr[1] = Double.parseDouble(stack.pop());
+                                tempValue = tempDoubleArr[1] * tempDoubleArr[0];
+                                evaluation = tempValue;
+                                stack.push(Double.toString(tempValue));
+                            }
+                            break;
+                        case "/":
+                            if (stack.size() > 1) {
+                                tempDoubleArr[0] = Double.parseDouble(stack.pop());
+                                tempDoubleArr[1] = Double.parseDouble(stack.pop());
+                                tempValue = tempDoubleArr[1] / tempDoubleArr[0];
+                                evaluation = tempValue;
+                                stack.push(Double.toString(tempValue));
+                            }
+                            break;
+                        default:
+                            throw new InvalidExpressionException("The mathematical expression provided is invalid.");
 
-        for (int i = 0; i < postfix.length; i++) {
-            //Check if current input is a number
-            if (Pattern.matches("[-]?[\\d]+[.]?[\\d]*", postfix[i])) {
-                stack.push(postfix[i]);
-            } else {
-                switch (postfix[i]) {
-                    case "+":
-                        if (stack.size() > 0) {
-                            tempDoubleArr[0] = Double.parseDouble(stack.pop());
-                            tempDoubleArr[1] = Double.parseDouble(stack.pop());
-                            tempValue = tempDoubleArr[1] + tempDoubleArr[0];
-                            evaluation = tempValue;
-                            stack.push(Double.toString(tempValue));
-                        }
-                        break;
-                    case "-":
-                        if (stack.size() > 0) {
-                            tempDoubleArr[0] = Double.parseDouble(stack.pop());
-                            tempDoubleArr[1] = Double.parseDouble(stack.pop());
-                            tempValue = tempDoubleArr[1] - tempDoubleArr[0];
-                            evaluation = tempValue;
-                            stack.push(Double.toString(tempValue));
-                        }
-                        break;
-                    case "*":
-                        if (stack.size() > 0) {
-                            tempDoubleArr[0] = Double.parseDouble(stack.pop());
-                            tempDoubleArr[1] = Double.parseDouble(stack.pop());
-                            tempValue = tempDoubleArr[1] * tempDoubleArr[0];
-                            evaluation = tempValue;
-                            stack.push(Double.toString(tempValue));
-                        }
-                        break;
-                    case "/":
-                        if (stack.size() > 0) {
-                            tempDoubleArr[0] = Double.parseDouble(stack.pop());
-                            tempDoubleArr[1] = Double.parseDouble(stack.pop());
-                            tempValue = tempDoubleArr[1] / tempDoubleArr[0];
-                            evaluation = tempValue;
-                            stack.push(Double.toString(tempValue));
-                        }
-                        break;
-                    default:
-                        break;
-
+                    }
                 }
             }
-        }
-
         return evaluation;
+        }
+        catch (InvalidExpressionException e){
+            System.err.println(e.getMessage());
+            return 0.0;
+        }
     }
 
     // Returns a String array. Converts input String in infix form to postfix.
