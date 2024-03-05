@@ -230,10 +230,6 @@ public class Calculator {
     // Returns a String. Converts a String array to a printable String seperated by spaces.
     private static String toString(String[] array) {
         String output = "";
-        for (int i = 0; i < array.length - 1; i++) {
-            output = output + array[i] + " ";
-        }
-        output = output + array[array.length - 1];
         if (array.length > 0) {
             for (int i = 0; i < array.length - 1; i++) {
                 output = output + array[i] + " ";
