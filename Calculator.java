@@ -95,52 +95,46 @@ public class Calculator {
                 if (Pattern.matches("[-]?[\\d]+[.]?[\\d]*", postfix[i])) {
                     stack.push(postfix[i]);
                 } else {
-                    switch (postfix[i]) {
-                        case "+":
-                            if (stack.size() > 1) {
+                    if (stack.size() > 1) {
+                        switch (postfix[i]) {
+                            case "+":
                                 tempDoubleArr[0] = Double.parseDouble(stack.pop());
                                 tempDoubleArr[1] = Double.parseDouble(stack.pop());
                                 tempValue = tempDoubleArr[1] + tempDoubleArr[0];
                                 evaluation = tempValue;
                                 stack.push(Double.toString(tempValue));
-                            }
-                            break;
-                        case "-":
-                            if (stack.size() > 1) {
+                                break;
+                            case "-":
                                 tempDoubleArr[0] = Double.parseDouble(stack.pop());
                                 tempDoubleArr[1] = Double.parseDouble(stack.pop());
                                 tempValue = tempDoubleArr[1] - tempDoubleArr[0];
                                 evaluation = tempValue;
                                 stack.push(Double.toString(tempValue));
-                            }
-                            break;
-                        case "*":
-                            if (stack.size() > 1) {
+                                break;
+                            case "*":
                                 tempDoubleArr[0] = Double.parseDouble(stack.pop());
                                 tempDoubleArr[1] = Double.parseDouble(stack.pop());
                                 tempValue = tempDoubleArr[1] * tempDoubleArr[0];
                                 evaluation = tempValue;
                                 stack.push(Double.toString(tempValue));
-                            }
-                            break;
-                        case "/":
-                            if (stack.size() > 1) {
+                                break;
+                            case "/":
                                 tempDoubleArr[0] = Double.parseDouble(stack.pop());
                                 tempDoubleArr[1] = Double.parseDouble(stack.pop());
                                 tempValue = tempDoubleArr[1] / tempDoubleArr[0];
                                 evaluation = tempValue;
                                 stack.push(Double.toString(tempValue));
-                            }
-                            break;
-                        default:
-                            throw new InvalidExpressionException("The mathematical expression provided is invalid.");
-
+                                break;
+                            default:
+                                throw new InvalidExpressionException("The mathematical expression provided is invalid.");
+                        }
+                    } else {
+                        throw new InvalidExpressionException("The mathematical expression provided is invalid.");
                     }
                 }
             }
-        return evaluation;
-        }
-        catch (InvalidExpressionException e){
+            return evaluation;
+        } catch (InvalidExpressionException e){
             System.err.println(e.getMessage());
             return 0.0;
         }
