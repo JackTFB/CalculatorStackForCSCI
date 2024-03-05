@@ -204,7 +204,7 @@ public class Calculator {
 
     // Returns a String array. Utilized to tokenize a raw input String, breaking it up into String
     // tokens with only relevant values remaining (removes space and tab characters).
-    public static String[] tokenize(String input) {
+    private static String[] tokenize(String input) {
         // Tokenize the input String
         StringTokenizer tokensRaw = new StringTokenizer(input, " \t+-*/()", true);
 
