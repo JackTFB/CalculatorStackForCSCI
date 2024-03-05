@@ -85,7 +85,7 @@ public class Calculator {
 
         for (int i = 0; i < postfix.length; i++) {
             //Check if current input is a number
-            if (Pattern.matches("[\\d]+[.]?[\\d]*", postfix[i])) {
+            if (Pattern.matches("[-]?[\\d]+[.]?[\\d]*", postfix[i])) {
                 stack.push(postfix[i]);
             } else {
                 switch (postfix[i]) {
@@ -144,7 +144,7 @@ public class Calculator {
 
             for (int i = 0; i < infix.length; i++) {
                 // Check if current input is a number
-                if (Pattern.matches("[\\d]+[.]?[\\d]*", infix[i])) {
+                if (Pattern.matches("[-]?[\\d]+[.]?[\\d]*", infix[i])) {
                     postfixList.add(infix[i]);
                 } else {
                     switch (infix[i]) {
@@ -215,6 +215,24 @@ public class Calculator {
             String current = tokensRaw.nextToken();
             // Add current token to tokenList if it is not " " or "\t" (space or tab characters)
             if (!current.equals(" ") && !current.equals("\t")) {
+
+                // Logic to handle negative numbers
+                if (current.equals("-")) {
+                    // Previous token must be an operator or must be first token
+                    if (tokenList.size() == 0 || "+-*/(".contains(tokenList.getLast())) {
+                        // Next token must be a number
+                        String next = tokensRaw.nextToken();
+                        if (Pattern.matches("[\\d]+[.]?[\\d]*", next)) {
+                            // Negative number
+                            current = current + next;
+                        } else {
+                            // Not a negative number, so add current and set current to next
+                            tokenList.add(current);
+                            current = next;
+                        }
+                    }
+                }
+
                 tokenList.add(current);
             }
         }
