@@ -85,11 +85,11 @@ public class Calculator {
 
     // Returns a double. Mathematically evaluates a postfix equation.
     public static double evaluatePostfix(String[] postfix) {
-        Stack<String> stack = new Stack<String>();
-        double evaluation = 0.0;
-        double tempValue = 0.0;
-        double[] tempDoubleArr = new double[2];
         try {
+            Stack<String> stack = new Stack<String>();
+            double evaluation = 0.0;
+            double tempValue = 0.0;
+            double[] tempDoubleArr = new double[2];
             for (int i = 0; i < postfix.length; i++) {
                 //Check if current input is a number
                 if (Pattern.matches("[-]?[\\d]+[.]?[\\d]*", postfix[i])) {
@@ -208,7 +208,6 @@ public class Calculator {
 
         // Handle InvalidExpressionException
         } catch (InvalidExpressionException e) {
-            e.printStackTrace();
             System.err.println(e.getMessage());
             return new String[1];
         }
