@@ -12,16 +12,18 @@ public class Calculator {
     // Constants
     private static final String POSTFIX_OUTPUT_PATH = "infix_to_postfix_results.txt";
     private static final String EVALUATION_OUTPUT_PATH = "postfix_evaluation_results.txt";
+    private static final String CALCULATOR_OUTPUT_PATH = "calculator_results.txt";
 
     // PrintWriters for printing to output files
     private PrintWriter postfixOutput;
     private PrintWriter evalOutput;
+    private PrintWriter calcOutput;
 
     // Expects String command-line arguments to be provided as mathematical expressions in infix
     // form. Will also listen for additional String expressions to be provided via the console.
     // Converts from infix to postfix form and evaluates the expression. Output will be printed to
-    // the console and to files specified with constants POSTFIX_OUTPUT_PATH and
-    // EVALUATION_OUTPUT_PATH.
+    // the console and to files specified with constants POSTFIX_OUTPUT_PATH,
+    // EVALUATION_OUTPUT_PATH, and CALCULATOR_OUTPUT_PATH.
     public static void main(String[] args) {
         Calculator calc = new Calculator();
 
@@ -35,9 +37,11 @@ public class Calculator {
             double eval = evaluatePostfix(postfix);
 
             // Output
-            calc.output(new PrintWriter[]{calc.postfixOutput, calc.evalOutput}, String.format("Input String: \"%s\"", args[i]));
+            calc.output(new PrintWriter[]{calc.postfixOutput, calc.evalOutput}, String.format("Input String: %s", args[i]));
             calc.output(new PrintWriter[]{calc.postfixOutput, calc.evalOutput}, String.format("Postfix Form: %s", Calculator.toString(postfix)));
             calc.output(new PrintWriter[]{calc.evalOutput}, String.format("Answer: %.3f", eval));
+            calc.calcOutput.println(args[i]);
+            calc.calcOutput.println(String.format("The input expression value is %.3f", eval));
         }
 
         // Accept user input from the console. While the user does not enter 'exit', program will continue.
@@ -52,9 +56,11 @@ public class Calculator {
             double eval = evaluatePostfix(postfix);
 
             // Output
-            calc.output(new PrintWriter[]{calc.postfixOutput, calc.evalOutput}, String.format("Input String: \"%s\"", line));
+            calc.output(new PrintWriter[]{calc.postfixOutput, calc.evalOutput}, String.format("Input String: %s", line));
             calc.output(new PrintWriter[]{calc.postfixOutput, calc.evalOutput}, String.format("Postfix Form: %s", Calculator.toString(postfix)));
             calc.output(new PrintWriter[]{calc.evalOutput}, String.format("Answer: %.3f", eval));
+            calc.calcOutput.println(line);
+            calc.calcOutput.println(String.format("The input expression value is %.3f\n", eval));
 
             // Next line
             System.out.println("\nPlease enter a mathematical expression, or enter 'exit' to close the program:");
@@ -68,6 +74,7 @@ public class Calculator {
         try {
             this.postfixOutput = new PrintWriter(new FileOutputStream(new File(POSTFIX_OUTPUT_PATH)), true);
             this.evalOutput = new PrintWriter(new FileOutputStream(new File(EVALUATION_OUTPUT_PATH)), true);
+            this.calcOutput = new PrintWriter(new FileOutputStream(new File(CALCULATOR_OUTPUT_PATH)), true);
         } catch (FileNotFoundException e) {
             e.printStackTrace();
             System.err.println("\nUnable to create files for output. Please grant the necessary permissions.\nContinuing with output only being printed to console.");
@@ -207,14 +214,14 @@ public class Calculator {
     // tokens with only relevant values remaining (removes space and tab characters).
     private static String[] tokenize(String input) {
         // Tokenize the input String
-        StringTokenizer tokensRaw = new StringTokenizer(input, " \t+-*/()", true);
+        StringTokenizer tokensRaw = new StringTokenizer(input, " \t+-*/()\"", true);
 
         // Loop through tokens and remove space and tab characters
         LinkedList<String> tokenList = new LinkedList<String>();
         while (tokensRaw.hasMoreTokens()) {
             String current = tokensRaw.nextToken();
             // Add current token to tokenList if it is not " " or "\t" (space or tab characters)
-            if (!current.equals(" ") && !current.equals("\t")) {
+            if (!" \t\"".contains(current)) {
 
                 // Logic to handle negative numbers
                 if (current.equals("-")) {
