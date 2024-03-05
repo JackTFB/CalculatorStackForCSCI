@@ -1,3 +1,0 @@
-Input String: "18 + 30 / (12 + 3) - 4"
-Postfix Form: 18 30 12 3 + / + 4 -
-Answer: 16.000
