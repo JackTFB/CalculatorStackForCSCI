@@ -17,9 +17,6 @@ public class Calculator {
     private PrintWriter postfixOutput;
     private PrintWriter evalOutput;
 
-    // Expects String arguments to be provided as mathematical equations in infix form. Converts
-    // from infix to postfix form and evaluates the expression. Output will be printed to the
-    // console and to files specified with constants POSTFIX_OUTPUT_PATH and EVALUATION_OUTPUT_PATH.
     // Expects String command-line arguments to be provided as mathematical expressions in infix
     // form. Will also listen for additional String expressions to be provided via the console.
     // Converts from infix to postfix form and evaluates the expression. Output will be printed to
@@ -32,19 +29,10 @@ public class Calculator {
         // Each argument provided is expected to be a mathematical expression in infix form
         for (int i = 0; i < args.length; i++) {
             // Convert from infix to postfix
-            String[] postfix = Calculator.infixToPostfix(Calculator.tokenize(args[i]));
+            String[] postfix = Calculator.infixToPostfix(args[i]);
 
             // Evaluate postfix
             double eval = evaluatePostfix(postfix);
-
-            // Output to postfix output file
-            calc.output(calc.postfixOutput, String.format("Input String: \"%s\"", args[i]));
-            calc.output(calc.postfixOutput, String.format("Postfix Form: %s", Calculator.toString(postfix)));
-
-            // Output to evaluation output file
-            calc.output(calc.evalOutput, String.format("Input String: \"%s\"", args[i]));
-            calc.output(calc.evalOutput, String.format("Postfix Form: %s", Calculator.toString(postfix)));
-            calc.output(calc.evalOutput, String.format("Answer: %.3f", eval));
 
             // Output
             calc.output(new PrintWriter[]{calc.postfixOutput, calc.evalOutput}, String.format("Input String: \"%s\"", args[i]));
@@ -56,9 +44,9 @@ public class Calculator {
         Scanner in = new Scanner(System.in);
         System.out.println("Please enter a mathematical expression, or enter 'exit' to close the program:");
         String line = in.nextLine();
-        while (!line.toLowerCase().equals("exit")) {
+        while (!line.toLowerCase().contains("exit")) {
             // Convert from infix to postfix
-            String[] postfix = Calculator.infixToPostfix(Calculator.tokenize(line));
+            String[] postfix = Calculator.infixToPostfix(line);
 
             // Evaluate postfix
             double eval = evaluatePostfix(postfix);
@@ -87,25 +75,19 @@ public class Calculator {
             evalOutput = null;
         }
     }
+
     // Returns a double. Mathematically evaluates a postfix equation.
     public static double evaluatePostfix(String[] postfix) {
-
-        // TO DO
         Stack<String> stack = new Stack<String>();
-
-
         double evaluation = 0.0;
-
         double tempValue = 0.0;
         double[] tempDoubleArr = new double[2];
 
-        for (int i = 0; i < postfix.length; i++)
-        {
+        for (int i = 0; i < postfix.length; i++) {
             //Check if current input is a number
-            if (Pattern.matches("[\\d]+[.]?[\\d]*", postfix[i])){
+            if (Pattern.matches("[-]?[\\d]+[.]?[\\d]*", postfix[i])) {
                 stack.push(postfix[i]);
-            }
-            else {
+            } else {
                 switch (postfix[i]) {
                     case "+":
                         if (stack.size() > 0) {
@@ -116,7 +98,6 @@ public class Calculator {
                             stack.push(Double.toString(tempValue));
                         }
                         break;
-                        
                     case "-":
                         if (stack.size() > 0) {
                             tempDoubleArr[0] = Double.parseDouble(stack.pop());
@@ -146,7 +127,7 @@ public class Calculator {
                         break;
                     default:
                         break;
-                    
+
                 }
             }
         }
@@ -154,18 +135,18 @@ public class Calculator {
         return evaluation;
     }
 
-    // Returns a String array. Converts input String array in infix form to postfix.
-    public static String[] infixToPostfix(String[] infix) {
+    // Returns a String array. Converts input String in infix form to postfix.
+    public static String[] infixToPostfix(String infixString) {
         try {
+            String[] infix = tokenize(infixString);
             LinkedList<String> postfixList = new LinkedList<String>();
             Stack<String> stack = new Stack<String>();
 
             for (int i = 0; i < infix.length; i++) {
                 // Check if current input is a number
-                if (Pattern.matches("[\\d]+[.]?[\\d]*", infix[i])) {
+                if (Pattern.matches("[-]?[\\d]+[.]?[\\d]*", infix[i])) {
                     postfixList.add(infix[i]);
-                }
-                else {
+                } else {
                     switch (infix[i]) {
                         case "(":
                             stack.push(infix[i]);
@@ -224,7 +205,7 @@ public class Calculator {
 
     // Returns a String array. Utilized to tokenize a raw input String, breaking it up into String
     // tokens with only relevant values remaining (removes space and tab characters).
-    public static String[] tokenize(String input) {
+    private static String[] tokenize(String input) {
         // Tokenize the input String
         StringTokenizer tokensRaw = new StringTokenizer(input, " \t+-*/()", true);
 
@@ -234,6 +215,24 @@ public class Calculator {
             String current = tokensRaw.nextToken();
             // Add current token to tokenList if it is not " " or "\t" (space or tab characters)
             if (!current.equals(" ") && !current.equals("\t")) {
+
+                // Logic to handle negative numbers
+                if (current.equals("-")) {
+                    // Previous token must be an operator or must be first token
+                    if (tokenList.size() == 0 || "+-*/(".contains(tokenList.getLast())) {
+                        // Next token must be a number
+                        String next = tokensRaw.nextToken();
+                        if (Pattern.matches("[\\d]+[.]?[\\d]*", next)) {
+                            // Negative number
+                            current = current + next;
+                        } else {
+                            // Not a negative number, so add current and set current to next
+                            tokenList.add(current);
+                            current = next;
+                        }
+                    }
+                }
+
                 tokenList.add(current);
             }
         }
@@ -250,10 +249,6 @@ public class Calculator {
     // Returns a String. Converts a String array to a printable String seperated by spaces.
     private static String toString(String[] array) {
         String output = "";
-        for (int i = 0; i < array.length - 1; i++) {
-            output = output + array[i] + " ";
-        }
-        output = output + array[array.length - 1];
         if (array.length > 0) {
             for (int i = 0; i < array.length - 1; i++) {
                 output = output + array[i] + " ";
@@ -264,11 +259,6 @@ public class Calculator {
     }
 
     // Method for printing output to files and console.
-    private void output(PrintWriter writer, String str) {
-        if (writer != null) {
-            writer.println(str);
-        }
-    }
     private void output(PrintWriter[] writers, String str) {
         for (int i = 0; i < writers.length; i++) {
             if (writers[i] != null) {
@@ -278,7 +268,6 @@ public class Calculator {
         System.out.println(str);
     }
 
-    // TO DO: IMPLEMENT CUSTOM EXCEPTION
     // Custom exception for invalid expressions
     public static class InvalidExpressionException extends Exception {
         public InvalidExpressionException(String eMsg, Throwable e) {
