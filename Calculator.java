@@ -134,7 +134,7 @@ public class Calculator {
                 }
             }
             return evaluation;
-        } catch (InvalidExpressionException e){
+        } catch (Exception e){
             System.err.println(e.getMessage());
             return 0.0;
         }
